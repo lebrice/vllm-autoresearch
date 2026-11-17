@@ -94,6 +94,11 @@ def trial(label, batch_tokens, tasks):
                 args.append(name if value else "--no-" + key.replace("_", "-"))
             elif value is not None:
                 args.extend([name, json.dumps(value) if isinstance(value, (dict, list)) else str(value)])
+        environment = CURRENT_TRIAL.get("environment", {})
+        if any(not key.startswith("VLLM_") for key in environment):
+            raise ValueError("Trial environment overrides must be vLLM serving settings")
+        extra_env = [item for key, value in environment.items() for item in ("-e", key + "=" + str(value))]
+        args[args.index("--entrypoint"):args.index("--entrypoint")] = extra_env
     concurrency = CONFIG.get("workload", {}).get("concurrency", 8)
     metadata = {"label": label, "command": args, "model": MODEL,
                 "task_ids": list(tasks), "max_tokens": CONFIG.get("benchmark", {}).get("max_new_tokens", 1024), "concurrency": concurrency,
