@@ -15,6 +15,11 @@ def main():
     parser.add_argument("--tolerance", type=float, default=0.01)
     args = parser.parse_args()
     paths = sorted(args.results.rglob("summary.json"))
+    failures = []
+    for path in sorted(args.results.rglob("failure.json")):
+        failure = json.loads(path.read_text())
+        if failure.get("gpu_attempt") and failure.get("trial_index"):
+            failures.append(failure)
     rows = []
     for path in paths:
         row = json.loads(path.read_text())
@@ -32,7 +37,7 @@ def main():
         rows.append(row)
     if not rows:
         raise SystemExit("No completed, scored trials yet; no improvement plot was fabricated.")
-    rows.sort(key=lambda r: (r.get("trial_index", 1000000),
+    rows.sort(key=lambda r: (r.get("trial_index") or 1000000,
                              r.get("started_at_utc", ""), r["summary_path"]))
     baseline_index = next((i for i, r in enumerate(rows) if r["label"] == "baseline"), 0)
     baseline = rows.pop(baseline_index)
@@ -50,7 +55,7 @@ def main():
                          "axes.spines.right": False, "figure.facecolor": "white"})
     fig, (throughput, quality) = plt.subplots(2, 1, figsize=(10, 7), sharex=True,
                                             gridspec_kw={"height_ratios": [2, 1]})
-    x = list(range(1, len(rows) + 1))
+    x = [row.get("trial_index") or i for i, row in enumerate(rows, 1)]
     throughput.step(x, envelope, where="post", color="#087f8c", linewidth=2.5,
                     label="Best quality-eligible throughput")
     for i, row, ok in zip(x, rows, eligible):
@@ -63,12 +68,22 @@ def main():
                        linewidth=1, label="Original baseline")
     throughput.set_ylabel("Completed tasks / second")
     throughput.set_ylim(bottom=0, top=max(envelope) * 1.25)
+    for failure in failures:
+        index = failure["trial_index"]
+        throughput.plot(index, 0.06, marker="x", color="#bb3344", markersize=9,
+                        transform=throughput.get_xaxis_transform())
+        throughput.text(index, 0.09, "failed", ha="center", color="#bb3344",
+                        transform=throughput.get_xaxis_transform(), fontsize=9)
     throughput.legend(loc="lower right", frameon=False)
     throughput.grid(axis="y", alpha=0.2)
     quality.plot(x, [100 * r["score"] for r in rows], "o-", color="#1769aa")
     quality.axhline(100 * floor, color="#bb3344", linestyle="--", label="Quality gate")
     quality.set_ylabel("HumanEval+ Mini (%)")
-    quality.set_xticks(x, [r["label"] for r in rows], rotation=20, ha="right")
+    ticks = {index: row["label"] for index, row in zip(x, rows)}
+    ticks.update({failure["trial_index"]: failure.get("trial_id", "failed") for failure in failures})
+    tick_indices = sorted(ticks)
+    quality.set_xticks(tick_indices, [ticks[i] for i in tick_indices], rotation=20, ha="right")
+    throughput.set_xlim(min(tick_indices) - 0.3, max(tick_indices) + 0.3)
     quality.set_xlabel("Sequential trial")
     quality.legend(frameon=False, loc="lower right")
     quality.grid(axis="y", alpha=0.2)
@@ -83,7 +98,7 @@ def main():
     fig.savefig(args.output, dpi=160)
     args.output.with_suffix(".json").write_text(json.dumps({
         "baseline_score": baseline["score"], "quality_floor": floor,
-        "best_speedup": speedup, "trials": rows}, indent=2))
+        "best_speedup": speedup, "trials": rows, "failed_gpu_attempts": failures}, indent=2))
     print(args.output)
 
 
