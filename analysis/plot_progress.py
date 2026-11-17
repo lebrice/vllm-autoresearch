@@ -67,7 +67,8 @@ def main():
     throughput.axhline(baseline["request_throughput"], color="#777777", linestyle="--",
                        linewidth=1, label="Original baseline")
     throughput.set_ylabel("Completed tasks / second")
-    throughput.set_ylim(bottom=0, top=max(envelope) * 1.25)
+    throughput.set_ylim(bottom=0, top=max(max(envelope),
+                       max(row["request_throughput"] for row in rows)) * 1.25)
     for failure in failures:
         index = failure["trial_index"]
         throughput.plot(index, 0.06, marker="x", color="#bb3344", markersize=9,
