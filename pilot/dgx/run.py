@@ -175,7 +175,7 @@ def trial(label, batch_tokens, tasks):
         benchmark = CONFIG.get("benchmark", {})
         evaluation_args = [str(Path(os.sys.executable)), "-m", "evalplus.evaluate",
                            "--dataset", benchmark.get("name", "humaneval"), "--samples", str(out / "samples.jsonl"),
-                           "--parallel", "8"]
+                           "--parallel", "8", "--version", benchmark.get("version", "default")]
         if benchmark.get("variant", "mini") == "mini":
             evaluation_args.append("--mini")
         subprocess.run(evaluation_args, env=env,

@@ -37,10 +37,12 @@ def main():
     # GPU attempts, including failed ones, define the x-axis. Do not renumber
     # successes to hide failures between them.
     occupied = {s["trial_index"] for _, s in rows if s.get("trial_index")}
+    failure_rows = []
     for path in args.results.rglob("failure.json"):
         failure = json.loads(path.read_text())
         if failure.get("gpu_attempt") and failure.get("trial_index"):
             occupied.add(failure["trial_index"])
+            failure_rows.append(dict(failure, source_summary=str(path)))
     next_index = 1
     for _, summary in rows:
         if not summary.get("trial_index"):
@@ -71,7 +73,8 @@ def main():
     ledger = args.results / "trial-ledger.jsonl"
     recorded = {json.loads(line)["source_summary"] for line in ledger.read_text().splitlines()} if ledger.exists() else set()
     with ledger.open("a") as stream:
-        for _, summary in rows:
+        events = [summary for _, summary in rows] + failure_rows
+        for summary in sorted(events, key=lambda x: x["trial_index"]):
             if summary["source_summary"] not in recorded:
                 stream.write(json.dumps(summary) + "\n")
     (args.results / "best-result.json").write_text(json.dumps(best, indent=2))
