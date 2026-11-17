@@ -59,6 +59,14 @@
       "hypothesis": "Disable the supported packed recurrent decode path to avoid the observed single-request Triton compilation failure and measure its throughput and quality tradeoff with CUDA graphs unchanged.",
       "environment": { "VLLM_ENABLE_FLA_PACKED_RECURRENT_DECODE": "0" },
       "serving_flags": { "max_model_len": 4096, "max_num_batched_tokens": 8192, "max_num_seqs": 8, "enforce_eager": false, "language_model_only": true }
+    },
+    {
+      "id": "compiled8192-repeat",
+      "trial_index": 5,
+      "parent": "compiled8192",
+      "hypothesis": "Repeat the best complete quality-eligible configuration with the original packed decode path to check throughput and quality reproducibility after the unpacked-path attempt failed.",
+      "environment": {},
+      "serving_flags": { "max_model_len": 4096, "max_num_batched_tokens": 8192, "max_num_seqs": 8, "enforce_eager": false, "language_model_only": true }
     }
   ]
 }
