@@ -51,6 +51,14 @@
       "parent": "batch8192",
       "hypothesis": "Enable torch compilation and CUDA graphs to reduce eager-mode decode dispatch overhead, keeping the larger batching budget and frozen workload.",
       "serving_flags": { "max_model_len": 4096, "max_num_batched_tokens": 8192, "max_num_seqs": 8, "enforce_eager": false, "language_model_only": true }
+    },
+    {
+      "id": "compiled8192-unpacked",
+      "trial_index": 4,
+      "parent": "compiled8192",
+      "hypothesis": "Disable the supported packed recurrent decode path to avoid the observed single-request Triton compilation failure and measure its throughput and quality tradeoff with CUDA graphs unchanged.",
+      "environment": { "VLLM_ENABLE_FLA_PACKED_RECURRENT_DECODE": "0" },
+      "serving_flags": { "max_model_len": 4096, "max_num_batched_tokens": 8192, "max_num_seqs": 8, "enforce_eager": false, "language_model_only": true }
     }
   ]
 }
