@@ -1,0 +1,49 @@
+{
+  "campaign": "dgx-qwen36-humaneval-mini",
+  "model": {
+    "id": "Qwen/Qwen3.6-35B-A3B-FP8",
+    "revision": "95a723d08a9490559dae23d0cff1d9466213d989",
+    "allow_quantization_variants": false
+  },
+  "benchmark": {
+    "name": "humaneval",
+    "variant": "mini",
+    "version": "v0.1.10",
+    "task_ids": null,
+    "max_new_tokens": 1024,
+    "temperature": 0,
+    "seed": 42,
+    "enable_thinking": false
+  },
+  "hardware": {
+    "ssh_host": "dgx",
+    "gpu_device": 0,
+    "expected_gpu": "NVIDIA GB10",
+    "gpu_count": 1,
+    "image": "sha256:f89e9baedf38ffe3165641d4a937b59b227bbbd58d0116a7518c53b97d601823",
+    "memory_utilization": 0.55
+  },
+  "workload": { "concurrency": 8 },
+  "quality": { "higher_is_better": true, "max_absolute_drop": 0.01 },
+  "objective": { "primary": "completed_requests_per_second", "secondary": "total_seconds" },
+  "budget": {
+    "target_measured_trials": 5,
+    "max_gpu_attempts": 10,
+    "max_concurrent_trials": 1,
+    "per_trial_timeout_seconds": 1200,
+    "startup_timeout_seconds": 900
+  },
+  "trials": [
+    {
+      "id": "baseline",
+      "hypothesis": "Establish original model quality and serving throughput with conservative eager execution.",
+      "serving_flags": { "max_model_len": 4096, "max_num_batched_tokens": 2048, "max_num_seqs": 8, "enforce_eager": true, "language_model_only": true }
+    },
+    {
+      "id": "batch8192",
+      "parent": "baseline",
+      "hypothesis": "A larger batching budget reduces prefill scheduling overhead with fixed client concurrency.",
+      "serving_flags": { "max_model_len": 4096, "max_num_batched_tokens": 8192, "max_num_seqs": 8, "enforce_eager": true, "language_model_only": true }
+    }
+  ]
+}

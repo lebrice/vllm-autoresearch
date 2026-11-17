@@ -27,3 +27,6 @@ uv.lock
 # log file
 run.log
 logs
+
+# Local experiment evidence and rendered progress graphs
+reports/
