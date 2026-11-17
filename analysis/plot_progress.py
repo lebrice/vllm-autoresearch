@@ -79,7 +79,7 @@ def main():
                         transform=throughput.get_xaxis_transform())
         throughput.text(index, 0.09, "failed", ha="center", color="#bb3344",
                         transform=throughput.get_xaxis_transform(), fontsize=9)
-    throughput.legend(loc="lower right", frameon=False)
+    throughput.legend(loc="upper left", frameon=False)
     throughput.grid(axis="y", alpha=0.2)
     quality.plot(x, [100 * r["score"] for r in rows], "o-", color="#1769aa")
     quality.axhline(100 * floor, color="#bb3344", linestyle="--", label="Quality gate")

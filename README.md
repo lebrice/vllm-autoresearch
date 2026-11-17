@@ -5,6 +5,21 @@ inference deployment. An agent reads **[program.md](program.md)** plus an experi
 configuration defining a **model, benchmark, and hardware configuration**, then tunes
 vLLM serving flags, measures throughput and correctness, and repeats autonomously.
 
+## Measured DGX pilot
+
+Five sequential GPU attempts produced three complete measurements and two kernel failures.
+With compilation/CUDA graphs and an 8192-token batching budget, benchmark throughput
+improved **15.5% and 19.1%** across two successful runs. Both passed **147/164** tasks,
+versus **146/164** for the official FP8 baseline. Cold-start total runtime remained slightly
+slower (776–781 seconds versus 762 seconds); this is a serving-throughput improvement.
+
+![Measured vLLM autoresearch progress on one DGX GB10 GPU](progress.png)
+
+Use the [selected configuration](experiments/dgx-best.json) to reproduce the winner.
+The [compact evidence](experiments/dgx-pilot-results.json) records every attempt,
+failure, frozen model/benchmark/hardware identity, and source provenance. These are
+DGX GB10 results, not L40S measurements or a comparison against the BF16 source model.
+
 ## Start an agent
 
 ```text
