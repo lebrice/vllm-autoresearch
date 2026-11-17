@@ -56,7 +56,11 @@ def main():
     fig, (throughput, quality) = plt.subplots(2, 1, figsize=(10, 7), sharex=True,
                                             gridspec_kw={"height_ratios": [2, 1]})
     x = [row.get("trial_index") or i for i, row in enumerate(rows, 1)]
-    throughput.step(x, envelope, where="post", color="#087f8c", linewidth=2.5,
+    step_x, step_y = list(x), list(envelope)
+    if failures and max(f["trial_index"] for f in failures) > max(x):
+        step_x.append(max(f["trial_index"] for f in failures))
+        step_y.append(envelope[-1])
+    throughput.step(step_x, step_y, where="post", color="#087f8c", linewidth=2.5,
                     label="Best quality-eligible throughput")
     for i, row, ok in zip(x, rows, eligible):
         throughput.scatter(i, row["request_throughput"], marker="o" if ok else "x",
