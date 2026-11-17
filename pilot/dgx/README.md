@@ -38,12 +38,14 @@ before it. The runner records the installed evaluator source hash in each trial.
 
 ```bash
 ssh dgx 'cd ~/repos/vllm-autoresearch-pilot && .venv/bin/python run.py --help'
-ssh dgx 'cd ~/repos/vllm-autoresearch-pilot && .venv/bin/python run.py --config experiments/dgx-qwen36-humaneval.json --trial-id baseline'
+experiment_commit=$(git rev-parse HEAD)
+ssh dgx "cd ~/repos/vllm-autoresearch-pilot && GIT_COMMIT=$experiment_commit .venv/bin/python run.py --config experiments/dgx-qwen36-humaneval.json --trial-id baseline"
 ```
 
-The CLI help has been verified. Full configurable-run validation is recorded
-with the campaign results; the initial two measurements use the preserved
-`two_trial_pilot.py` prototype.
+The configurable CLI completed the full 164-task `compiled8192` trial at source
+commit `f5485e684979a92777e7f4466fdb5cfcc43ed102`. Its recorded source/configuration
+hashes, task coverage, grading, and hardware are in the campaign results. The
+initial two attempts used the preserved `two_trial_pilot.py` prototype.
 
 The calling research agent chooses the next hypothesis and adds a named trial
 to the JSON. This command executes exactly one trial and returns a structured
