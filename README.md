@@ -37,8 +37,8 @@ fabricated throughput or quality points. The corresponding JSON contains exact v
 
 - `program.md`: reusable agent instructions, recovery, quality gate, provenance, and budgets.
 - `experiments/dgx-qwen36-humaneval.json`: initial campaign contract.
-- `pilot/dgx/run.py`: experimental DGX runner. Inspect `--help` for the current interface;
-  the complete baseline/candidate/grading path is undergoing live validation.
+- `pilot/dgx/run.py`: DGX pilot runner with a verified full generation, grading, and
+  result-recording path. See [setup and single-trial commands](pilot/dgx/README.md).
 - `references/cluv-imagenet/`: examples for a future `cluv`/Slurm execution adapter.
 
 `dgx` is a GB10 unified-memory system, not an L40S or Slurm cluster. Its measurements do
