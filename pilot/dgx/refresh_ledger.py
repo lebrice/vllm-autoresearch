@@ -70,7 +70,8 @@ def main():
         command = best["command"]
         flags["max_num_batched_tokens"] = int(command[command.index("--max-num-batched-tokens") + 1])
     best_config["trials"] = [{"id": "best", "parent": best["trial_id"],
-                              "hypothesis": "Reproduce best observed quality-eligible throughput", "serving_flags": flags}]
+                              "hypothesis": "Reproduce best observed quality-eligible throughput", "serving_flags": flags,
+                              "environment": best.get("trial", {}).get("environment", {})}]
     (args.results / "best-config.json").write_text(json.dumps(best_config, indent=2))
     print(json.dumps({"measured_trials": len(rows), "baseline_score": baseline["score"],
                       "best_trial": best["trial_id"], "best_speedup": best["speedup"]}, indent=2))
