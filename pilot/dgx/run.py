@@ -102,7 +102,7 @@ def trial(label, batch_tokens, tasks):
                 "evalplus_version": importlib.metadata.version("evalplus"),
                 "source_commit": os.environ.get("GIT_COMMIT"),
                 "pilot_code_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
-                "status": "running", "stage": "startup"}
+                "status": "running", "stage": "startup", "gpu_attempt": False}
     metadata["trial_id"] = label
     metadata["started_at_utc"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
     metadata["started_at_unix"] = time.time()
@@ -127,6 +127,8 @@ def trial(label, batch_tokens, tasks):
     try:
         with (out / "server.log").open("w") as log:
             proc = subprocess.Popen(args, stdout=log, stderr=subprocess.STDOUT)
+            metadata["gpu_attempt"] = True
+            (out / "manifest.json").write_text(json.dumps(metadata, indent=2))
             deadline = start + budget.get("startup_timeout_seconds", 900)
             while True:
                 if proc.poll() is not None:
@@ -229,9 +231,16 @@ def main():
             out = RUN_ROOT / args.trial_id
             out.mkdir(parents=True, exist_ok=True)
             result = {"status": "failed", "trial_id": args.trial_id, "config": CONFIG,
+                      "trial_index": CURRENT_TRIAL.get("trial_index"), "gpu_attempt": False,
+                      "source_commit": os.environ.get("GIT_COMMIT"),
+                      "finished_at_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
                       "error_type": type(error).__name__, "error": str(error), "traceback": traceback.format_exc()}
             if (out / "manifest.json").exists():
                 result["manifest"] = json.loads((out / "manifest.json").read_text())
+                for key in ("stage", "gpu_attempt", "started_at_utc", "started_at_unix"):
+                    result[key] = result["manifest"].get(key)
+            if (out / "raw.jsonl").exists():
+                result["completed_requests"] = len((out / "raw.jsonl").read_text().splitlines())
             (out / "failure.json").write_text(json.dumps(result, indent=2))
             print(json.dumps(result), flush=True)
             return 1
