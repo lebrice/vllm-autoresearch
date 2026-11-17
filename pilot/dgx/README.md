@@ -20,9 +20,10 @@ From the local project root:
 ```bash
 ssh dgx 'mkdir -p ~/repos/vllm-autoresearch-pilot/experiments'
 rsync -a pilot/dgx/run.py pilot/dgx/fix_evalplus.py dgx:repos/vllm-autoresearch-pilot/
+rsync -a pilot/dgx/evaluator-requirements.txt dgx:repos/vllm-autoresearch-pilot/
 rsync -a experiments/dgx-qwen36-humaneval.json dgx:repos/vllm-autoresearch-pilot/experiments/
 ssh dgx '~/.local/bin/uv venv --python 3.11 ~/repos/vllm-autoresearch-pilot/.venv'
-ssh dgx '~/.local/bin/uv pip install --python ~/repos/vllm-autoresearch-pilot/.venv/bin/python evalplus==0.3.1'
+ssh dgx '~/.local/bin/uv pip install --python ~/repos/vllm-autoresearch-pilot/.venv/bin/python -r ~/repos/vllm-autoresearch-pilot/evaluator-requirements.txt'
 ssh dgx 'cd ~/repos/vllm-autoresearch-pilot && .venv/bin/python fix_evalplus.py'
 ```
 
