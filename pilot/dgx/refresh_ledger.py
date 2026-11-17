@@ -34,12 +34,26 @@ def main():
     if not rows:
         print("No complete measured trials yet")
         return
+    # GPU attempts, including failed ones, define the x-axis. Do not renumber
+    # successes to hide failures between them.
+    occupied = {s["trial_index"] for _, s in rows if s.get("trial_index")}
+    for path in args.results.rglob("failure.json"):
+        failure = json.loads(path.read_text())
+        if failure.get("gpu_attempt") and failure.get("trial_index"):
+            occupied.add(failure["trial_index"])
+    next_index = 1
+    for _, summary in rows:
+        if not summary.get("trial_index"):
+            while next_index in occupied:
+                next_index += 1
+            summary["trial_index"] = next_index
+            occupied.add(next_index)
+    rows.sort(key=lambda item: item[1]["trial_index"])
     # First chronological completed trial named baseline is the frozen reference.
     baseline = next(s for _, s in rows if s["trial_id"] == "baseline")
     floor = baseline["score"] - config["quality"].get("max_absolute_drop", .01)
     best = baseline
-    for index, (path, summary) in enumerate(rows, 1):
-        summary["trial_index"] = index
+    for path, summary in rows:
         summary["eligible"] = summary["score"] >= floor
         summary["baseline_score"] = baseline["score"]
         summary["score_floor"] = floor
