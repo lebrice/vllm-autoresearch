@@ -1,0 +1,197 @@
+{
+  "schema_version": 1,
+  "campaign": "dgx-qwen36-humaneval-mini",
+  "model": {
+    "id": "Qwen/Qwen3.6-35B-A3B-FP8",
+    "revision": "95a723d08a9490559dae23d0cff1d9466213d989",
+    "allow_quantization_variants": false
+  },
+  "benchmark": {
+    "name": "humaneval",
+    "variant": "mini",
+    "version": "v0.1.10",
+    "task_ids": null,
+    "max_new_tokens": 1024,
+    "temperature": 0,
+    "seed": 42,
+    "enable_thinking": false
+  },
+  "hardware": {
+    "ssh_host": "dgx",
+    "gpu_device": 0,
+    "expected_gpu": "NVIDIA GB10",
+    "gpu_count": 1,
+    "image": "sha256:f89e9baedf38ffe3165641d4a937b59b227bbbd58d0116a7518c53b97d601823",
+    "memory_utilization": 0.55
+  },
+  "workload": {
+    "concurrency": 8
+  },
+  "objective": {
+    "primary": "completed_requests_per_second",
+    "secondary": "total_seconds"
+  },
+  "quality": {
+    "higher_is_better": true,
+    "max_absolute_drop": 0.01,
+    "baseline_score": 0.8902439024390244,
+    "score_floor": 0.8802439024390244,
+    "reference": "Official FP8 checkpoint under the frozen benchmark settings; BF16 source-model quality was not measured."
+  },
+  "evaluation": {
+    "evalplus_version": "0.3.1",
+    "patch": "pilot/dgx/fix_evalplus.py: preserve find_zero oracle while correcting progress bookkeeping",
+    "canonical_solution_smoke_passed": 164,
+    "canonical_solution_smoke_total": 164,
+    "patched_evaluator_sha256": "905bef8d559bfd955780b670c93a76f5b7a4a09b2a521170ff67de15d389ff96"
+  },
+  "attempts": [
+    {
+      "attempt": 1,
+      "trial_id": "baseline",
+      "status": "completed",
+      "evidence_path": "20261117-172908/baseline/summary.json",
+      "score": 0.8902439024390244,
+      "passed": 146,
+      "completed_requests": 164,
+      "completed_requests_per_second": 0.410044033608385,
+      "output_tokens_per_second": 109.92180422901852,
+      "generation_seconds": 399.9570449953899,
+      "startup_seconds": 339.14302499126643,
+      "grading_seconds": 20.509578502736986,
+      "total_seconds": 762.1183738941327,
+      "truncated_requests": 3,
+      "pilot_code_sha256": "cd7f73e60a53b8b7717b9fbd135d6d311a3376c95fb95f32dc3219a8ce087189",
+      "eligible": true,
+      "speedup_vs_baseline": 1.0,
+      "source_commit": null,
+      "gpu_attempt": true
+    },
+    {
+      "attempt": 2,
+      "trial_id": "batch8192",
+      "status": "failed",
+      "evidence_path": "20261117-172908/candidate/failure.json",
+      "completed_requests": 163,
+      "source_commit": null,
+      "pilot_code_sha256": "cd7f73e60a53b8b7717b9fbd135d6d311a3376c95fb95f32dc3219a8ce087189",
+      "started_at_utc": "2026-11-17T22:41:52Z",
+      "error": "Triton ConvertTritonGPUToLLVM PassManager::run failed in fused_recurrent_gated_delta_rule_packed_decode_kernel; final scheduled batch has one request; engine died and HTTP500",
+      "stage": "generation",
+      "diagnosis": "Triton ConvertTritonGPUToLLVM failed compiling packed GDN decode for the final single-request batch; HumanEval/160 was missing. Partial answers are not a scored measurement.",
+      "gpu_attempt": true
+    },
+    {
+      "attempt": 3,
+      "trial_id": "compiled8192",
+      "status": "completed",
+      "evidence_path": "20261117-175517/compiled8192/summary.json",
+      "score": 0.8963414634146342,
+      "passed": 147,
+      "completed_requests": 164,
+      "completed_requests_per_second": 0.473398927485043,
+      "output_tokens_per_second": 127.56080490543617,
+      "generation_seconds": 346.4308651294559,
+      "startup_seconds": 411.18404813390225,
+      "grading_seconds": 20.714663513936102,
+      "total_seconds": 780.5935387136415,
+      "truncated_requests": 4,
+      "source_commit": "f5485e684979a92777e7f4466fdb5cfcc43ed102",
+      "pilot_code_sha256": "a12ebc109935935c6b41d4f60189deef7bcedb23020ba3a3b6209ef2860fb908",
+      "started_at_utc": "2026-11-17T22:55:17Z",
+      "finished_at_utc": "2026-11-17T23:08:18Z",
+      "dataset_sha256": "0e6791c09c2b8e896d5155a29e3577a6a9d05e72f8cbaa0cb05668384a35620c",
+      "config_sha256": "7bc173cb9ceeb70222db864eb08c630ec2706110569218b540c16f7130ea3952",
+      "evalplus_code_sha256": "905bef8d559bfd955780b670c93a76f5b7a4a09b2a521170ff67de15d389ff96",
+      "eligible": true,
+      "speedup_vs_baseline": 1.1545075374445406,
+      "gpu_attempt": true
+    },
+    {
+      "attempt": 4,
+      "trial_id": "compiled8192-unpacked",
+      "status": "failed",
+      "evidence_path": "20261117-180857/compiled8192-unpacked/failure.json",
+      "completed_requests": 0,
+      "source_commit": "ee9b0cd75f4a900c7609e85507fffbfab823b2c0",
+      "started_at_utc": "2026-11-17T23:08:57Z",
+      "finished_at_utc": "2026-11-17T23:17:35Z",
+      "error": "HTTP Error 500: Internal Server Error",
+      "stage": "generation",
+      "diagnosis": "Native segfault in CUDA cuLibraryLoadData/cudaFuncSetAttribute while FlashAttention split-KV kernel loaded during initial generation. The unpacked-decode workaround is not validated.",
+      "gpu_attempt": true,
+      "startup_seconds": 414.19848296791315,
+      "pilot_code_sha256": "432a1a459b79cd84dde22121f8c73eadeb6f64875ad4fc58619a763377f62904",
+      "config_sha256": "f872b815f96d45a2c001bf23ee704c5bcb4e045e7db2e9a0bee821edac5c6284",
+      "dataset_sha256": "0e6791c09c2b8e896d5155a29e3577a6a9d05e72f8cbaa0cb05668384a35620c",
+      "evalplus_code_sha256": "905bef8d559bfd955780b670c93a76f5b7a4a09b2a521170ff67de15d389ff96"
+    },
+    {
+      "attempt": 5,
+      "trial_id": "compiled8192-repeat",
+      "status": "completed",
+      "evidence_path": "20261117-181842/compiled8192-repeat/summary.json",
+      "score": 0.8963414634146342,
+      "passed": 147,
+      "completed_requests": 164,
+      "completed_requests_per_second": 0.4885187806902928,
+      "output_tokens_per_second": 128.83491331485277,
+      "generation_seconds": 335.7086901925504,
+      "startup_seconds": 417.1924467450008,
+      "grading_seconds": 20.638393938541412,
+      "total_seconds": 776.0472058439627,
+      "truncated_requests": 5,
+      "source_commit": "a94e6c2d71667ea3db8b0f6e1d756c08dd5eebaa",
+      "pilot_code_sha256": "432a1a459b79cd84dde22121f8c73eadeb6f64875ad4fc58619a763377f62904",
+      "started_at_utc": "2026-11-17T23:18:42Z",
+      "finished_at_utc": "2026-11-17T23:31:38Z",
+      "dataset_sha256": "0e6791c09c2b8e896d5155a29e3577a6a9d05e72f8cbaa0cb05668384a35620c",
+      "config_sha256": "18ebae956db0aca4991e30c756bdd421d565da1bb97be6fb569b11a75e93a8a7",
+      "evalplus_code_sha256": "905bef8d559bfd955780b670c93a76f5b7a4a09b2a521170ff67de15d389ff96",
+      "eligible": true,
+      "speedup_vs_baseline": 1.1913812679856124,
+      "gpu_attempt": true
+    }
+  ],
+  "result": {
+    "best_attempt": 5,
+    "best_trial_id": "compiled8192-repeat",
+    "best_speedup": 1.1913812679856124,
+    "compiled_configuration_repeat_speedups": [
+      1.1545075374445406,
+      1.1913812679856124
+    ],
+    "compiled_configuration_scores": [
+      0.8963414634146342,
+      0.8963414634146342
+    ],
+    "mean_compiled_requests_per_second": 0.4809588540876679,
+    "best_total_runtime_change_percent": 1.8276467838793886,
+    "conclusion": "Compiled serving reproduced higher generation throughput with comparable benchmark quality. Cold-start total trial runtime remained slightly slower than baseline; this is not an end-to-end runtime improvement or a global optimum."
+  },
+  "stop": {
+    "campaign_gpu_attempts": 5,
+    "completed_scored_trials": 3,
+    "failed_gpu_attempts": 2,
+    "earlier_setup_gpu_starts_excluded_from_campaign": 2,
+    "maximum_concurrent_gpu_trials": 1,
+    "reason": "Bounded five-attempt pilot completed; no sixth campaign GPU attempt launched.",
+    "gpu_compute_processes_at_stop": 0,
+    "managed_containers_at_stop": 0
+  },
+  "provenance": {
+    "legacy_prototype": "pilot/dgx/two_trial_pilot.py",
+    "legacy_prototype_sha256": "cd7f73e60a53b8b7717b9fbd135d6d311a3376c95fb95f32dc3219a8ce087189",
+    "legacy_attempts_without_prelaunch_commits": [
+      1,
+      2
+    ],
+    "committed_source_attempts": [
+      3,
+      4,
+      5
+    ],
+    "raw_results_location": "dgx:~/repos/vllm-autoresearch-pilot/results/",
+    "raw_results_are_git_ignored": true
+  }
+}
